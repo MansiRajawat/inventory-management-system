@@ -8,5 +8,4 @@ public class ProductDetails {
     private String productName;
     private double productPrice;
     private int productCount;
-
 }
