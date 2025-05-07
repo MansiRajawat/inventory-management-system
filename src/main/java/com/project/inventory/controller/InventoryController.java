@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 
@@ -47,4 +48,23 @@ public class InventoryController {
         List<Details> getProductsList = inventoryService.retriveListOfProducts();
         return new ResponseEntity<>(getProductsList, HttpStatus.OK);
     }
+    @GetMapping("/getProductById/{id}")
+   public ResponseEntity<Optional<Details>> getProductDetailsById(@PathVariable("id") Long id){
+        Optional<Details> productDetails = inventoryService.getProductById(id);
+        return ResponseEntity.ok(productDetails);
+   }
+    @DeleteMapping("/deleteInventory/{id}")
+   public ResponseEntity<String> deleteProductDetails(@PathVariable("id") Long id){
+       Optional<Details> retriveProductDetails = inventoryService.getProductById(id);
+       if(retriveProductDetails.isPresent()){
+           inventoryService.deleteProduct(id);
+           return  ResponseEntity.ok("Product Deleted");
+       }
+        return new ResponseEntity<>("Product Not Present In Database",HttpStatus.NOT_FOUND);
+   }
+    @PutMapping("/updateProductDetails")
+   public ResponseEntity<Details> updateProductDetails(@RequestBody Details details){
+        Details updateDetails = inventoryService.updateProductDetails(details);
+        return new ResponseEntity<Details>(updateDetails, HttpStatus.OK);
+   }
 }
