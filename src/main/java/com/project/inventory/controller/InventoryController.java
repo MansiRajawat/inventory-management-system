@@ -2,6 +2,7 @@ package com.project.inventory.controller;
 
 
 import com.project.inventory.model.Details;
+import com.project.inventory.model.ProductDetails;
 import com.project.inventory.service.InventoryService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,9 +27,9 @@ public class InventoryController {
     //response entity is a part of spring framework , which will help us to show the output of the response and
     // corresponding status http code.
     @PostMapping("/")
-    public ResponseEntity<List<Details>> SaveProductDetails(@RequestBody Details details) {
+    public ResponseEntity<List<ProductDetails>> SaveProductDetails(@RequestBody Details details) {
         logger.info("inside the post method");
-        List<Details> productDetailList = inventoryService.saveListOfProductDetails(details);
+        List<ProductDetails> productDetailList = inventoryService.saveListOfProductDetails(details);
         return new ResponseEntity<>(productDetailList, HttpStatus.CREATED);
     }
 

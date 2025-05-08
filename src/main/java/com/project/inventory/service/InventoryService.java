@@ -1,6 +1,7 @@
 package com.project.inventory.service;
 
 import com.project.inventory.model.Details;
+import com.project.inventory.model.ProductDetails;
 import com.project.inventory.serviceImpl.InventoryServiceImpl;
 import org.springframework.stereotype.Component;
 
@@ -11,7 +12,7 @@ import java.util.Optional;
 public class InventoryService implements InventoryServiceImpl {
 
     @Override
-    public List<Details> saveListOfProductDetails(Details details) {
+    public List<ProductDetails> saveListOfProductDetails(Details details) {
         return List.of();
     }
 
