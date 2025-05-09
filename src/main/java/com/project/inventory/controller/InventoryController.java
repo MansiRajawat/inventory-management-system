@@ -34,9 +34,9 @@ public class InventoryController {
     }
 
     @GetMapping("/getAllProducts")
-    public ResponseEntity<List<Details>> getListOfProducts() {
-        List<Details> getProductsList = inventoryService.retriveListOfProducts();
-        return new ResponseEntity<>(getProductsList, HttpStatus.OK);
+    public ResponseEntity<Details> getListOfProducts() {
+        Details getProductDetails = inventoryService.retriveListOfProducts();
+        return new ResponseEntity<>(getProductDetails, HttpStatus.OK);
     }
 
     @GetMapping("/getProductById/{id}")
