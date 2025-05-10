@@ -40,16 +40,16 @@ public class InventoryController {
     }
 
     @GetMapping("/getProductById/{id}")
-    public ResponseEntity<Optional<Details>> getProductDetailsById(@PathVariable("id") Long id) {
-        Optional<Details> productDetails = inventoryService.getProductById(id);
+    public ResponseEntity<Optional<ProductDetails>> getProductDetailsById(@PathVariable("id") Long productId) {
+        Optional<ProductDetails> productDetails = inventoryService.getProductById(productId);
         return ResponseEntity.ok(productDetails);
     }
 
     @DeleteMapping("/deleteInventory/{id}")
     public ResponseEntity<String> deleteProductDetails(@PathVariable("id") Long id) {
-        Optional<Details> retriveProductDetails = inventoryService.getProductById(id);
+        Optional<ProductDetails> retriveProductDetails = inventoryService.getProductById(id);
         if ( retriveProductDetails.isPresent() ) {
-            inventoryService.deleteProduct(id);
+            inventoryService.deleteProduct(retriveProductDetails.get().getProductId());
             return ResponseEntity.ok("Product Deleted");
         }
         return new ResponseEntity<>("Product Not Present In Database", HttpStatus.NOT_FOUND);
@@ -60,4 +60,5 @@ public class InventoryController {
         Details updateDetails = inventoryService.updateProductDetails(details);
         return new ResponseEntity<Details>(updateDetails, HttpStatus.OK);
     }
+
 }

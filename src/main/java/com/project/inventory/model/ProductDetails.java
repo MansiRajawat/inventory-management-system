@@ -12,7 +12,7 @@ import lombok.Data;
 @Table(name = "product")
 public class ProductDetails {
     @Id
-    @NotNull
+  //  @NotNull
     private Long productId;
     private String productName;
     private double productPrice;

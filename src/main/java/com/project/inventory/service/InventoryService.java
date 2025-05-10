@@ -62,13 +62,17 @@ public class InventoryService implements InventoryServiceImpl {
     }
 
     @Override
-    public Optional<Details> getProductById(Long id) {
-        return null;
+    public Optional<ProductDetails> getProductById(Long productId) {
+        return productDao.findById(productId);
     }
 
     @Override
     public Optional<Details> deleteProduct(Long id) {
-        return Optional.empty();
+        if (getProductById(id).isPresent()) {
+            productDao.delete(getProductById(id).get());
+        }
+        return null;
+
     }
 
     @Override
@@ -77,3 +81,4 @@ public class InventoryService implements InventoryServiceImpl {
     }
 
 }
+
