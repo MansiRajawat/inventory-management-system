@@ -47,9 +47,9 @@ public class InventoryController {
 
     @DeleteMapping("/deleteInventory/{id}")
     public ResponseEntity<String> deleteProductDetails(@PathVariable("id") Long id) {
-        Optional<ProductDetails> retriveProductDetails = inventoryService.getProductById(id);
-        if ( retriveProductDetails.isPresent() ) {
-            inventoryService.deleteProduct(retriveProductDetails.get().getProductId());
+
+           Optional<ProductDetails> deleteProduct = inventoryService.deleteProduct(id);
+           if (deleteProduct.isPresent()) {
             return ResponseEntity.ok("Product Deleted");
         }
         return new ResponseEntity<>("Product Not Present In Database", HttpStatus.NOT_FOUND);

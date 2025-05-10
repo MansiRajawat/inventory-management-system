@@ -67,11 +67,10 @@ public class InventoryService implements InventoryServiceImpl {
     }
 
     @Override
-    public Optional<Details> deleteProduct(Long id) {
-        if (getProductById(id).isPresent()) {
-            productDao.delete(getProductById(id).get());
-        }
-        return null;
+    public Optional<ProductDetails> deleteProduct(Long id) {
+        Optional<ProductDetails> productOpt = getProductById(id);
+        productOpt.ifPresent(productDao::delete);
+        return productOpt;
 
     }
 
