@@ -28,19 +28,19 @@ public class InventoryService implements InventoryServiceImpl {
         }
         List<ProductDetails> productDetailsList = new ArrayList<>();
 
-        for (ProductDetails incomingProduct : details.getProductDetails()) {
-            Optional<ProductDetails> existingProductOpt = productDao.findById(incomingProduct.getProductId());
+        for (ProductDetails product : details.getProductDetails()) {
+            Optional<ProductDetails> checkProductExist = productDao.findById(product.getProductId());
 
-            if (existingProductOpt.isPresent()) {
-                ProductDetails existingProduct = existingProductOpt.get();
+            if (checkProductExist.isPresent()) {
+                ProductDetails existingProduct = checkProductExist.get();
 
-                if (!existingProduct.getProductName().equalsIgnoreCase(incomingProduct.getProductName())) {
-                    throw new ProductIdAlreadyMappedException("Product ID " + incomingProduct.getProductId()
+                if (!existingProduct.getProductName().equalsIgnoreCase(product.getProductName())) {
+                    throw new ProductIdAlreadyMappedException("Product ID " + product.getProductId()
                             + " is already mapped to '" + existingProduct.getProductName() + "'");
                 }
             }
 
-            productDetailsList.add(mapProductDetails(incomingProduct));
+            productDetailsList.add(mapProductDetails(product));
         }
         return productDao.saveAll(productDetailsList);
     }
