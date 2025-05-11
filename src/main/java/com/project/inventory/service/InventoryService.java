@@ -1,6 +1,7 @@
 package com.project.inventory.service;
 
 import com.project.inventory.dao.ProductRepository;
+import com.project.inventory.exception.ProductIdAlreadyMappedException;
 import com.project.inventory.model.Details;
 import com.project.inventory.model.ProductDetails;
 import com.project.inventory.serviceImpl.InventoryServiceImpl;
@@ -22,12 +23,25 @@ public class InventoryService implements InventoryServiceImpl {
 
     @Override
     public List<ProductDetails> saveListOfProductDetails(Details details) {
-        if (CollectionUtils.isNotEmpty(details.getProductDetails()) ) {
+        if (CollectionUtils.isEmpty(details.getProductDetails()) ) {
             throw new IllegalArgumentException("Product details list cannot be null or empty");
         }
-        List<ProductDetails> productDetailsList = details.getProductDetails().stream()
-                .map(this::mapProductDetails)
-                .collect(Collectors.toList());
+        List<ProductDetails> productDetailsList = new ArrayList<>();
+
+        for (ProductDetails incomingProduct : details.getProductDetails()) {
+            Optional<ProductDetails> existingProductOpt = productDao.findById(incomingProduct.getProductId());
+
+            if (existingProductOpt.isPresent()) {
+                ProductDetails existingProduct = existingProductOpt.get();
+
+                if (!existingProduct.getProductName().equalsIgnoreCase(incomingProduct.getProductName())) {
+                    throw new ProductIdAlreadyMappedException("Product ID " + incomingProduct.getProductId()
+                            + " is already mapped to '" + existingProduct.getProductName() + "'");
+                }
+            }
+
+            productDetailsList.add(mapProductDetails(incomingProduct));
+        }
         return productDao.saveAll(productDetailsList);
     }
 
