@@ -6,6 +6,8 @@ spring:
     password: M@nsi123*
   jpa:
     hibernate:
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
       dialect: org.hibernate.dialect.MySQL8Dialect
       show-sql: true
       ddl-auto: update
