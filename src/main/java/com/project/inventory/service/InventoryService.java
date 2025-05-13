@@ -4,6 +4,7 @@ import com.project.inventory.dao.ProductRepository;
 import com.project.inventory.exception.ProductIdAlreadyMappedException;
 import com.project.inventory.model.Details;
 import com.project.inventory.model.ProductDetails;
+import com.project.inventory.model.ProductResponse;
 import com.project.inventory.serviceImpl.InventoryServiceImpl;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +23,7 @@ public class InventoryService implements InventoryServiceImpl {
 
 
     @Override
-    public List<ProductDetails> saveListOfProductDetails(Details details) {
+    public List<ProductResponse> saveListOfProductDetails(Details details) {
         if (CollectionUtils.isEmpty(details.getProductDetails()) ) {
             throw new IllegalArgumentException("Product details list cannot be null or empty");
         }
@@ -40,13 +41,15 @@ public class InventoryService implements InventoryServiceImpl {
                 }
             }
 
-            productDetailsList.add(mapProductDetails(product));
+            productDetailsList.add(product);
         }
-        return productDao.saveAll(productDetailsList);
+        List<ProductDetails> saveProducts =  productDao.saveAll(productDetailsList);
+
+        return saveProducts.stream().map(this :: mapProductDetails).collect(Collectors.toList());
     }
 
-    private ProductDetails mapProductDetails(ProductDetails productDetails) {
-        ProductDetails mappedDetails = new ProductDetails();
+    private ProductResponse mapProductDetails(ProductDetails productDetails) {
+        ProductResponse mappedDetails = new ProductResponse();
         mappedDetails.setProductId(productDetails.getProductId());
         mappedDetails.setProductName(productDetails.getProductName());
         mappedDetails.setProductPrice(productDetails.getProductPrice());
