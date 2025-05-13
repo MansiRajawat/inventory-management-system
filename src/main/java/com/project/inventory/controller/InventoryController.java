@@ -59,10 +59,9 @@ public class InventoryController {
         return new ResponseEntity<>("Product Not Present In Database", HttpStatus.NOT_FOUND);
     }
 
-    @PutMapping("/updateProductDetails")
-    public ResponseEntity<Details> updateProductDetails(@RequestBody Details details) {
-        Details updateDetails = inventoryService.updateProductDetails(details);
-        return new ResponseEntity<Details>(updateDetails, HttpStatus.OK);
+    @PutMapping("/updateProductDetails/{id}")
+    public ResponseEntity<ProductDetails> updateProductDetails(@PathVariable Long id , @RequestBody ProductDetails details) {
+        ProductDetails updateDetails = inventoryService.updateProductDetails(id , details);
+        return new ResponseEntity<>(updateDetails, HttpStatus.OK);
     }
-
 }

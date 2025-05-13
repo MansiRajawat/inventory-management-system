@@ -2,6 +2,7 @@ package com.project.inventory.service;
 
 import com.project.inventory.dao.ProductRepository;
 import com.project.inventory.exception.ProductIdAlreadyMappedException;
+import com.project.inventory.exception.ResourceNotFoundException;
 import com.project.inventory.model.Details;
 import com.project.inventory.model.ProductDetails;
 import com.project.inventory.model.ProductResponse;
@@ -92,8 +93,13 @@ public class InventoryService implements InventoryServiceImpl {
     }
 
     @Override
-    public Details updateProductDetails(Details details) {
-        return null;
+    public ProductDetails updateProductDetails(Long id , ProductDetails productDetails) {
+        ProductDetails existingDetails = productDao.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        existingDetails.setProductName(productDetails.getProductName());
+        existingDetails.setProductCount(productDetails.getProductCount());
+        existingDetails.setProductPrice(productDetails.getProductPrice());
+        return productDao.save(existingDetails);
     }
 
 }
