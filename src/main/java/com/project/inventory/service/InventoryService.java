@@ -95,7 +95,7 @@ public class InventoryService implements InventoryServiceImpl {
     @Override
     public ProductDetails updateProductDetails(Long id , ProductDetails productDetails) {
         ProductDetails existingDetails = productDao.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
         existingDetails.setProductName(productDetails.getProductName());
         existingDetails.setProductCount(productDetails.getProductCount());
         existingDetails.setProductPrice(productDetails.getProductPrice());
