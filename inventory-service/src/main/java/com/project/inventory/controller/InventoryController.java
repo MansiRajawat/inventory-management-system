@@ -6,6 +6,10 @@ import com.project.inventory.model.InventoryResponse;
 import com.project.inventory.model.ProductDetails;
 import com.project.inventory.model.ProductResponse;
 import com.project.inventory.service.InventoryService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +23,7 @@ import java.util.Optional;
 @RestController
 
 @RequestMapping("/inventory")
+@Tag(name = "Inventory Controller", description = "Endpoints for managing inventory")
 public class InventoryController {
     //we're going to use logger instead of system print statements
 
@@ -28,6 +33,13 @@ public class InventoryController {
 
     //response entity is a part of spring framework , which will help us to show the output of the response and
     // corresponding status http code.
+
+    @Operation(summary = "Create new product", description = "Adds a new product to the inventory")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Product created successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid input"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
     @PostMapping("/")
     public ResponseEntity<InventoryResponse> SaveProductDetails(@RequestBody Details details) {
         logger.info("inside the post method");

@@ -22,3 +22,7 @@ spring:
         hibernate:
           type: trace
           stat: debug
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
