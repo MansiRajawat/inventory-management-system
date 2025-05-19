@@ -76,4 +76,15 @@ public class InventoryController {
         ProductDetails updateDetails = inventoryService.updateProductDetails(id , details);
         return new ResponseEntity<>(updateDetails, HttpStatus.OK);
     }
+
+    @PutMapping("/restoreProductCount/{id}")
+    public ResponseEntity<String> restoreProductCount(@PathVariable Long id, @RequestParam int quantity) {
+        Optional<ProductDetails> restoreProduct =  inventoryService.restoreProductDetails(id, quantity);
+        if (restoreProduct.isPresent()) {
+
+            return ResponseEntity.ok("Inventory restored");
+        }
+        return new ResponseEntity<>("Product not found", HttpStatus.NOT_FOUND);
+    }
+
 }

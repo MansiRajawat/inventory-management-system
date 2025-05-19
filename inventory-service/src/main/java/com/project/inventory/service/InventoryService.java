@@ -95,11 +95,19 @@ public class InventoryService implements InventoryServiceImpl {
     @Override
     public ProductDetails updateProductDetails(Long id , ProductDetails productDetails) {
         ProductDetails existingDetails = productDao.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("product not found"));
         existingDetails.setProductName(productDetails.getProductName());
         existingDetails.setProductCount(productDetails.getProductCount());
         existingDetails.setProductPrice(productDetails.getProductPrice());
         return productDao.save(existingDetails);
+    }
+
+    @Override
+    public Optional<ProductDetails> restoreProductDetails(Long id, int quantity) {
+        return productDao.findById(id).map(product -> {
+            product.setProductCount(product.getProductCount() + quantity);
+            return productDao.save(product);
+        });
     }
 
 }

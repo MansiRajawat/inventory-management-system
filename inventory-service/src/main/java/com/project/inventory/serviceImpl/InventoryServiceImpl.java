@@ -13,4 +13,5 @@ public Details retriveListOfProducts();
 public Optional<ProductDetails> getProductById(Long id);
 public Optional<ProductDetails> deleteProduct(Long id);
 public ProductDetails updateProductDetails(Long id , ProductDetails details);
+public Optional<ProductDetails> restoreProductDetails(Long id, int quantity);
 }
