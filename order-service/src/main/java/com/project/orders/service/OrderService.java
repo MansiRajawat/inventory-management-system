@@ -8,15 +8,15 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+@Component
 public class OrderService implements OrderServiceImpl {
     @Autowired
     private RestTemplate restTemplate;
@@ -28,7 +28,7 @@ public class OrderService implements OrderServiceImpl {
 
     private final String INVENTORY_URL = "http://localhost:8080/inventory";
 
-    public ResponseEntity<OrderResponse> processOrders(Orders ordersDetails) {
+    public OrderResponse processOrders(Orders ordersDetails) {
         Orders order = new Orders();
         order.setCustomerName(ordersDetails.getCustomerName());
         order.setAddress(ordersDetails.getAddress());
@@ -94,13 +94,13 @@ public class OrderService implements OrderServiceImpl {
             orderRepository.save(order);
         }
 
-        OrderResponse response = buildResponse(order, processedDetails);
+        OrderResponse buildResponse = buildResponse(order, processedDetails);
         if (hasFailure) {
-            response.setOrderMessage("Order processing failed: " + String.join("; ", failureMessages));
+            buildResponse.setOrderMessage("Order processing failed: " + String.join("; ", failureMessages));
         } else {
-            response.setOrderMessage("Order processed successfully.");
+            buildResponse.setOrderMessage("Order processed successfully.");
         }
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        return buildResponse;
     }
 
     private ResponseEntity<ProductDetails> updateProductInventoryDetails(OrderDetails orderDetails, ProductDetails productDetails) {
