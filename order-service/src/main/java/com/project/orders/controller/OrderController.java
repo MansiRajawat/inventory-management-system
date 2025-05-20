@@ -24,7 +24,7 @@ public class OrderController {
         return null;
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/getOrder/{id}")
     public ResponseEntity<Orders> viewOrdersById(@PathVariable int id){
         return null;
     }
@@ -34,7 +34,7 @@ public class OrderController {
         return null;
     }
 
-    @DeleteMapping
+    @DeleteMapping("/deleteOrders")
     public ResponseEntity<Orders> deleteOrders(){
         return null;
     }

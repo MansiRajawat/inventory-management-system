@@ -2,6 +2,7 @@ package com.project.orders.service;
 
 import com.project.orders.dao.OrderRepository;
 import com.project.orders.model.*;
+import com.project.orders.serviceImpl.OrderServiceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,9 +13,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
-public class OrderService {
+public class OrderService implements OrderServiceImpl {
     @Autowired
     private RestTemplate restTemplate;
 
@@ -153,5 +156,34 @@ public class OrderService {
         }
         return response;
     }
+
+    @Override
+    public List<Orders> retrieveListOfOrders() {
+        return Optional.ofNullable(orderRepository.findAll())
+                .orElse(List.of());
+    }
+
+    @Override
+    public Optional<Orders> getOrdersById(int orderId) {
+        List<Orders> allOrders = orderRepository.findAll();
+
+        return allOrders.stream()
+                .filter(order -> order.getOrderDetails().stream()
+                        .anyMatch(detail -> detail.getOrderId() == orderId))
+                .findFirst();
+        }
+
+    @Override
+    public Optional<Orders> deleteOrderById(int orderId) {
+        Optional<Orders> ordersOpt = getOrdersById(orderId);
+        ordersOpt.ifPresent(orderRepository::delete);
+        return ordersOpt;
+    }
+
+    @Override
+    public Optional<Orders> bulkDeleteOfOrders(int customerId) {
+        return Optional.empty();
+    }
 }
+
 
