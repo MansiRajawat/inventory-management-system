@@ -9,5 +9,5 @@ public interface OrderServiceImpl {
 public List<Orders> retrieveListOfOrders();
 public Optional<Orders> getOrdersById(int orderId);
 public Optional<Orders> deleteOrderById(int orderId);
-public Optional<Orders> bulkDeleteOfOrders(int customerId);
+public Optional<Orders> bulkOrdersDelete(Orders orders);
 }

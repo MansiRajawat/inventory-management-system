@@ -15,6 +15,7 @@ import org.springframework.web.client.RestTemplate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Component
 public class OrderService implements OrderServiceImpl {
@@ -181,7 +182,48 @@ public class OrderService implements OrderServiceImpl {
     }
 
     @Override
-    public Optional<Orders> bulkDeleteOfOrders(int customerId) {
+    public Optional<Orders> bulkOrdersDelete(Orders orders) {
+
+        List<Integer> deletedOrderIds = new ArrayList<>();
+        List<OrderDetails> deletedOrdersList = new ArrayList<>();
+        List<Integer> orderIds = orders.getOrderDetails().stream()
+                .map(i -> i.getOrderId())
+                .collect(Collectors.toList());
+
+        Optional<Orders> validateCustomer = orderRepository.findById(String.valueOf(orders.getCustomerId()));
+
+        if(validateCustomer.isPresent()){
+            Orders existingOrders = validateCustomer.get();
+            List<OrderDetails> remainingOrders = new ArrayList<>();
+            for (OrderDetails orderDetail : existingOrders.getOrderDetails()) {
+                if (!orderIds.contains(orderDetail.getOrderId())) {
+                    remainingOrders.add(orderDetail);
+                } else {
+                    deletedOrderIds.add(orderDetail.getOrderId());
+                    deletedOrdersList.add(orderDetail);
+                }
+            }
+
+            if (deletedOrderIds.size() > 0) {
+                existingOrders.setOrderDetails(remainingOrders);
+                if (remainingOrders.isEmpty()) {
+                    orderRepository.delete(existingOrders);
+                } else {
+                    orderRepository.save(existingOrders);
+                }
+            }
+
+            Orders deletedOrdersResult = new Orders();
+            deletedOrdersResult.setId(existingOrders.getId());
+            deletedOrdersResult.setCustomerId(existingOrders.getCustomerId());
+            deletedOrdersResult.setCustomerName(existingOrders.getCustomerName());
+            deletedOrdersResult.setAddress(existingOrders.getAddress());
+            deletedOrdersResult.setEmailId(existingOrders.getEmailId());
+            deletedOrdersResult.setPhoneNumber(existingOrders.getPhoneNumber());
+            deletedOrdersResult.setOrderDetails(deletedOrdersList);
+
+            return Optional.of(deletedOrdersResult);
+        }
         return Optional.empty();
     }
 }

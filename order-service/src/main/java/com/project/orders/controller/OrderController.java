@@ -9,7 +9,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 
@@ -46,7 +48,28 @@ public class OrderController {
     }
 
     @DeleteMapping("/deleteOrders")
-    public ResponseEntity<Orders> deleteOrders(){
-        return null;
+    public ResponseEntity<?> deleteOrders(@RequestBody Orders orders){
+        try {
+            Optional<Orders> deletedOrders = service.bulkOrdersDelete(orders);
+            if (deletedOrders.isPresent()) {
+                Map<String, Object> response = new HashMap<>();
+                response.put("status", "success");
+                response.put("deletedOrders", deletedOrders.get());
+                response.put("message", deletedOrders.get().getOrderDetails().size() + " orders successfully deleted");
+                return new ResponseEntity<>(response, HttpStatus.OK);
+            } else {
+                Map<String, Object> response = new HashMap<>();
+                response.put("status", "success");
+                response.put("message", "No orders were deleted");
+
+                return new ResponseEntity<>(response, HttpStatus.OK);
+            }
+        } catch (Exception e) {
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("status", "error");
+            errorResponse.put("message", "Failed to delete orders: " + e.getMessage());
+
+            return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }
