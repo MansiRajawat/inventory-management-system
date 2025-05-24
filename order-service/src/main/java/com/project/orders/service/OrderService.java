@@ -15,6 +15,7 @@ import org.springframework.web.client.RestTemplate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Component
@@ -146,11 +147,12 @@ public class OrderService implements OrderServiceImpl {
         response.setOrderDetailsResponses(new ArrayList<>());
 
         for (OrderDetails detail : processedDetails) {
+            int uuidOrderId = Math.abs(UUID.randomUUID().hashCode());
             OrderDetailsResponse odp = new OrderDetailsResponse();
-            odp.setOrderId(detail.getOrderId());
+            odp.setOrderId(uuidOrderId);
             odp.setOrderName(detail.getOrderName());
             odp.setPrice(detail.getPrice());
-            odp.setProductId(detail.getProductId());
+           // odp.setProductId(detail.getProductId());
             odp.setQuantity(detail.getQuantity());
             response.getOrderDetailsResponses().add(odp);
 
