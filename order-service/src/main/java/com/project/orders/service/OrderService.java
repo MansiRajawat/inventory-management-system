@@ -45,13 +45,13 @@ public class OrderService implements OrderServiceImpl {
         for (OrderDetails orderDetails : ordersDetails.getOrderDetails()) {
             try {
                 ResponseEntity<ProductDetails> productResponse = restTemplate.getForEntity(
-                        INVENTORY_URL + orderDetails.getProductId(),
+                        INVENTORY_URL + "/" + orderDetails.getProductId(),
                         ProductDetails.class);
                 ProductDetails productDetails = productResponse.getBody();
 
-                if ( processedDetails == null ) {
+                if (productDetails == null) {
                     logger.error("Product not found for ID: {}", orderDetails.getProductId());
-                    failureMessages.add("Product not found.");
+                    failureMessages.add("Product not found for productId: " + orderDetails.getProductId());
                     hasFailure = true;
                     continue;
                 }
