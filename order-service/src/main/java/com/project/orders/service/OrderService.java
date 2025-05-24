@@ -45,7 +45,7 @@ public class OrderService implements OrderServiceImpl {
         for (OrderDetails orderDetails : ordersDetails.getOrderDetails()) {
             try {
                 ResponseEntity<ProductDetails> productResponse = restTemplate.getForEntity(
-                        INVENTORY_URL + "/" + orderDetails.getProductId(),
+                        INVENTORY_URL + "/getProductById/" + orderDetails.getProductId(),
                         ProductDetails.class);
                 ProductDetails productDetails = productResponse.getBody();
 
