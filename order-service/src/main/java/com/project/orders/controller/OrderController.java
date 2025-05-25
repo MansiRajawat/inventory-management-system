@@ -14,32 +14,33 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-
+@RestController  // <-- Add this annotation
 @RequestMapping("/orders")
 public class OrderController {
 
     @Autowired
     private OrderService service;
-    @PostMapping("/create")
-    public ResponseEntity<OrderResponse> placeOrder(@RequestBody Orders orders){
-        OrderResponse orderResponse = service.processOrders(orders);
 
-        return  new ResponseEntity<>(orderResponse, HttpStatus.CREATED);
+    @PostMapping("/create")
+    public ResponseEntity<OrderResponse> placeOrder(@RequestBody Orders orders) {
+        OrderResponse orderResponse = service.processOrders(orders);
+        return new ResponseEntity<>(orderResponse, HttpStatus.CREATED);
     }
+
     @GetMapping("/getAllOrders")
-    public ResponseEntity<List<Orders>> viewOrders(){
-        List<Orders> getOrderDetails =service.retrieveListOfOrders();
+    public ResponseEntity<List<Orders>> viewOrders() {
+        List<Orders> getOrderDetails = service.retrieveListOfOrders();
         return new ResponseEntity<>(getOrderDetails, HttpStatus.OK);
     }
 
     @GetMapping("/getOrder/{id}")
-    public ResponseEntity<Optional<Orders>> viewOrdersById(@PathVariable int id){
+    public ResponseEntity<Optional<Orders>> viewOrdersById(@PathVariable int id) {
         Optional<Orders> retrieveOrder = service.getOrdersById(id);
         return ResponseEntity.ok(retrieveOrder);
     }
 
     @DeleteMapping("/deleteOrder/{id}")
-    public ResponseEntity<String> deleteOrder(@PathVariable int id){
+    public ResponseEntity<String> deleteOrder(@PathVariable int id) {
         Optional<Orders> deleteOrder = service.deleteOrderById(id);
         if (deleteOrder.isPresent()) {
             return ResponseEntity.ok("Order Deleted");
@@ -48,7 +49,7 @@ public class OrderController {
     }
 
     @DeleteMapping("/deleteOrders")
-    public ResponseEntity<?> deleteOrders(@RequestBody Orders orders){
+    public ResponseEntity<?> deleteOrders(@RequestBody Orders orders) {
         try {
             Optional<Orders> deletedOrders = service.bulkOrdersDelete(orders);
             if (deletedOrders.isPresent()) {
@@ -61,14 +62,12 @@ public class OrderController {
                 Map<String, Object> response = new HashMap<>();
                 response.put("status", "success");
                 response.put("message", "No orders were deleted");
-
                 return new ResponseEntity<>(response, HttpStatus.OK);
             }
         } catch (Exception e) {
             Map<String, Object> errorResponse = new HashMap<>();
             errorResponse.put("status", "error");
             errorResponse.put("message", "Failed to delete orders: " + e.getMessage());
-
             return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

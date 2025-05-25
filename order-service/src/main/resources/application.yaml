@@ -1,7 +1,7 @@
 spring:
   data:
     mongodb:
-      uri: mongodb+srv://InventoTrack:M%40nsi1234@cluster0.6emwr5g.mongodb.net/order-service-db?retryWrites=true&w=majority
+      uri: mongodb+srv://Mansi:M%40nsi1234@cluster0.6emwr5g.mongodb.net/order-service-db?retryWrites=true&w=majority
 
 server:
   port: 9090
