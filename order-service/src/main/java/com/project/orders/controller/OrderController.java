@@ -1,6 +1,5 @@
 package com.project.orders.controller;
 
-import com.project.orders.model.OrderDetailsResponse;
 import com.project.orders.model.OrderResponse;
 import com.project.orders.model.Orders;
 import com.project.orders.service.OrderService;
