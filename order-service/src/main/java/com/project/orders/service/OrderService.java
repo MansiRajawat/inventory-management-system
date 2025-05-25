@@ -71,6 +71,10 @@ public class OrderService implements OrderServiceImpl {
                     failureMessages.add("Only 5 items left! Proceeding with order.");
                 }
 
+                if (orderDetails.getOrderId() == 0) {
+                    orderDetails.setOrderId(Math.abs(UUID.randomUUID().hashCode()));
+                }
+
                 //Deduct stock from the inventory
                 ResponseEntity<ProductDetails> updateResponse = updateProductInventoryDetails(orderDetails, productDetails);
                 if ( !updateResponse.getStatusCode().is2xxSuccessful() ) {
@@ -147,12 +151,10 @@ public class OrderService implements OrderServiceImpl {
         response.setOrderDetailsResponses(new ArrayList<>());
 
         for (OrderDetails detail : processedDetails) {
-            int uuidOrderId = Math.abs(UUID.randomUUID().hashCode());
             OrderDetailsResponse odp = new OrderDetailsResponse();
-            odp.setOrderId(uuidOrderId);
+            odp.setOrderId(detail.getOrderId());
             odp.setOrderName(detail.getOrderName());
             odp.setPrice(detail.getPrice());
-           // odp.setProductId(detail.getProductId());
             odp.setQuantity(detail.getQuantity());
             response.getOrderDetailsResponses().add(odp);
 
