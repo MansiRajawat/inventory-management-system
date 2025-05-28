@@ -59,9 +59,9 @@ public class OrderController {
                 return new ResponseEntity<>(response, HttpStatus.OK);
             } else {
                 Map<String, Object> response = new HashMap<>();
-                response.put("status", "success");
+                response.put("status", "deletion failed");
                 response.put("message", "No orders were deleted");
-                return new ResponseEntity<>(response, HttpStatus.OK);
+                return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
             }
         } catch (Exception e) {
             Map<String, Object> errorResponse = new HashMap<>();

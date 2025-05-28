@@ -194,7 +194,7 @@ public class OrderService implements OrderServiceImpl {
                 .map(i -> i.getOrderId())
                 .collect(Collectors.toList());
 
-        Optional<Orders> validateCustomer = orderRepository.findById(String.valueOf(orders.getCustomerId()));
+        Optional<Orders> validateCustomer = orderRepository.findByCustomerId(orders.getCustomerId());
 
         if(validateCustomer.isPresent()){
             Orders existingOrders = validateCustomer.get();
@@ -215,6 +215,7 @@ public class OrderService implements OrderServiceImpl {
                 } else {
                     orderRepository.save(existingOrders);
                 }
+                restoreProductDetails(deletedOrdersList);
             }
 
             Orders deletedOrdersResult = new Orders();
