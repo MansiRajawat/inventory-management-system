@@ -26,6 +26,9 @@ public class OrderService implements OrderServiceImpl {
     @Autowired
     private OrderRepository orderRepository;
 
+    @Autowired
+    private EmailService emailService;
+
     private static final Logger logger = LoggerFactory.getLogger(OrderService.class);
 
     private final String INVENTORY_URL = "http://localhost:8080/inventory";
@@ -98,6 +101,14 @@ public class OrderService implements OrderServiceImpl {
         } else {
             order.setOrderDetails(processedDetails);
             orderRepository.save(order);
+            if (ordersDetails.getEmailId() != null && !ordersDetails.getEmailId().isEmpty()) {
+                try {
+                    emailService.sendOrderConfirmationEmail(ordersDetails.getEmailId(), buildResponse(order, processedDetails));
+                    logger.info("Confirmation email sent to {}", ordersDetails.getEmailId());
+                } catch (Exception e) {
+                    logger.error("Failed to send email to {}", ordersDetails.getEmailId(), e);
+                }
+            }
         }
 
         OrderResponse buildResponse = buildResponse(order, processedDetails);
@@ -186,7 +197,7 @@ public class OrderService implements OrderServiceImpl {
     }
 
     @Override
-    public Optional<Orders> bulkOrdersDelete(Orders orders) {
+    public Optional<OrderResponse> bulkOrdersDelete(Orders orders) {
 
         List<Integer> deletedOrderIds = new ArrayList<>();
         List<OrderDetails> deletedOrdersList = new ArrayList<>();
@@ -218,16 +229,16 @@ public class OrderService implements OrderServiceImpl {
                 restoreProductDetails(deletedOrdersList);
             }
 
-            Orders deletedOrdersResult = new Orders();
-            deletedOrdersResult.setId(existingOrders.getId());
-            deletedOrdersResult.setCustomerId(existingOrders.getCustomerId());
-            deletedOrdersResult.setCustomerName(existingOrders.getCustomerName());
-            deletedOrdersResult.setAddress(existingOrders.getAddress());
-            deletedOrdersResult.setEmailId(existingOrders.getEmailId());
-            deletedOrdersResult.setPhoneNumber(existingOrders.getPhoneNumber());
-            deletedOrdersResult.setOrderDetails(deletedOrdersList);
+//            Orders deletedOrdersResult = new Orders();
+//            deletedOrdersResult.setId(existingOrders.getId());
+//            deletedOrdersResult.setCustomerId(existingOrders.getCustomerId());
+//            deletedOrdersResult.setCustomerName(existingOrders.getCustomerName());
+//            deletedOrdersResult.setAddress(existingOrders.getAddress());
+//            deletedOrdersResult.setEmailId(existingOrders.getEmailId());
+//            deletedOrdersResult.setPhoneNumber(existingOrders.getPhoneNumber());
+//            deletedOrdersResult.setOrderDetails(deletedOrdersList);
 
-            return Optional.of(deletedOrdersResult);
+            return Optional.of(buildResponse(existingOrders, deletedOrdersList));
         }
         return Optional.empty();
     }
