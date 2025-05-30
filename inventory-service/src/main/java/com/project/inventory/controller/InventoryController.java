@@ -87,4 +87,12 @@ public class InventoryController {
         return new ResponseEntity<>("Product not found", HttpStatus.NOT_FOUND);
     }
 
+    @GetMapping("/limitProductData")
+    public ResponseEntity<List<ProductDetails>> getLimitedProductDetails(@RequestParam(value = "limit", required = false) Integer limit , @RequestParam(value = "page", required = false) Integer page) {
+
+        List<ProductDetails> getProductInfo = inventoryService.getLimitedProductDetails(Integer.valueOf(limit), Integer.valueOf(page));
+        return new ResponseEntity<>(getProductInfo, HttpStatus.OK);
+    }
+
+
 }

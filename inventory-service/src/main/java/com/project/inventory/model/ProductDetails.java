@@ -29,4 +29,16 @@ public class ProductDetails {
     @Column(name = "productCount")
     @Schema(description = "Inventory Count", example = "75")
     private int productCount;
+
+    public ProductDetails(Long productId, String productName, double productPrice, int productCount) {
+        this.productId = productId;
+        this.productName = productName;
+        this.productPrice = productPrice;
+        this.productCount = productCount;
+    }
+    public ProductDetails() {
+        super();
+        // TODO Auto-generated constructor stub
+    }
+
 }
