@@ -1,5 +1,6 @@
 package com.project.orders.controller;
 
+import com.project.orders.model.OrderDetailsResponse;
 import com.project.orders.model.OrderResponse;
 import com.project.orders.model.Orders;
 import com.project.orders.service.OrderService;
@@ -24,31 +25,31 @@ public class OrderController {
             OrderResponse orderResponse = service.processOrders(orders);
             return new ResponseEntity<>(orderResponse, HttpStatus.CREATED);
         } catch (Exception e) {
-        return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @GetMapping("/getAllOrders")
-    public ResponseEntity<List<Orders>> viewOrders() {
+    public ResponseEntity<List<OrderResponse>> viewOrders() {
         try {
-            List<Orders> getOrderDetails = service.retrieveListOfOrders();
+            List<OrderResponse> getOrderDetails = service.retrieveListOfOrders();
             if ( CollectionUtils.isEmpty(getOrderDetails) ) {
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }
             return new ResponseEntity<>(getOrderDetails, HttpStatus.OK);
-        } catch (Exception e){
+        } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @GetMapping("/getOrder/{id}")
-    public ResponseEntity<Orders> viewOrdersById(@PathVariable int id) {
+    public ResponseEntity<OrderResponse> retrieveOrderById(@PathVariable int id) {
         try {
-            Optional<Orders> retrieveOrder = service.getOrdersById(id);
+            Optional<OrderResponse> retrieveOrder = service.getOrdersById(id);
 
             return retrieveOrder.map(order -> new ResponseEntity<>(order, HttpStatus.OK))
                     .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
-        } catch(Exception e){
+        } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -56,7 +57,7 @@ public class OrderController {
     @DeleteMapping("/deleteOrder/{id}")
     public ResponseEntity<String> deleteOrder(@PathVariable int id) {
         Optional<Orders> deleteOrder = service.deleteOrderById(id);
-        if (deleteOrder.isPresent()) {
+        if ( deleteOrder.isPresent() ) {
             return ResponseEntity.ok("Order Deleted");
         }
         return new ResponseEntity<>("Order Not Present In Database", HttpStatus.NOT_FOUND);
@@ -66,7 +67,7 @@ public class OrderController {
     public ResponseEntity<?> deleteOrders(@RequestBody Orders orders) {
         try {
             Optional<OrderResponse> deletedOrders = service.bulkOrdersDelete(orders);
-            if (deletedOrders.isPresent()) {
+            if ( deletedOrders.isPresent() ) {
                 Map<String, Object> response = new HashMap<>();
                 response.put("status", "success");
                 response.put("deletedOrders", deletedOrders.get());

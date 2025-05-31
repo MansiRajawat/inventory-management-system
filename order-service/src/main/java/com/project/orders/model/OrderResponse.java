@@ -9,7 +9,7 @@ public class OrderResponse {
     List<OrderDetailsResponse> orderDetailsResponses;
     private int customerId;
     private String customerName;
-    private  String address;
+    private String address;
     private String emailId;
     private int phoneNumber;
     private String orderMessage;

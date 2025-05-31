@@ -7,6 +7,5 @@ public class OrderDetailsResponse {
     private int orderId;
     private String orderName;
     private double price;
-   // private int productId;
     private int quantity;
 }

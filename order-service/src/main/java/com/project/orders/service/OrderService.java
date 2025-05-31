@@ -1,6 +1,7 @@
 package com.project.orders.service;
 
 import com.project.orders.dao.OrderRepository;
+import com.project.orders.helper.ResponseBuilderHelper;
 import com.project.orders.model.*;
 import com.project.orders.serviceImpl.OrderServiceImpl;
 import org.slf4j.Logger;
@@ -29,6 +30,9 @@ public class OrderService implements OrderServiceImpl {
     @Autowired
     private EmailService emailService;
 
+    @Autowired
+    private ResponseBuilderHelper helper;
+
     private static final Logger logger = LoggerFactory.getLogger(OrderService.class);
 
     private final String INVENTORY_URL = "http://localhost:8080/inventory";
@@ -53,7 +57,7 @@ public class OrderService implements OrderServiceImpl {
                         ProductDetails.class);
                 ProductDetails productDetails = productResponse.getBody();
 
-                if (productDetails == null) {
+                if ( productDetails == null ) {
                     logger.error("Product not found for ID: {}", orderDetails.getProductId());
                     failureMessages.add("Product not found for productId: " + orderDetails.getProductId());
                     hasFailure = true;
@@ -74,7 +78,7 @@ public class OrderService implements OrderServiceImpl {
                     failureMessages.add("Only 5 items left! Proceeding with order.");
                 }
 
-                if (orderDetails.getOrderId() == 0) {
+                if ( orderDetails.getOrderId() == 0 ) {
                     orderDetails.setOrderId(Math.abs(UUID.randomUUID().hashCode()));
                 }
 
@@ -96,23 +100,23 @@ public class OrderService implements OrderServiceImpl {
 
             processedDetails.add(orderDetails);
         }
-        if (hasFailure) {
+        if ( hasFailure ) {
             restoreProductDetails(reservedProducts);
         } else {
             order.setOrderDetails(processedDetails);
             orderRepository.save(order);
-            if (ordersDetails.getEmailId() != null && !ordersDetails.getEmailId().isEmpty()) {
+            if ( ordersDetails.getEmailId() != null && !ordersDetails.getEmailId().isEmpty() ) {
                 try {
-                    emailService.sendOrderConfirmationEmail(ordersDetails.getEmailId(), buildResponse(order, processedDetails));
-                    logger.info("Confirmation email sent to {}", ordersDetails.getEmailId());
+                   // emailService.sendOrderConfirmationEmail(ordersDetails.getEmailId(), helper.buildResponse(order, processedDetails));
+                   // logger.info("Confirmation email sent to {}", ordersDetails.getEmailId());
                 } catch (Exception e) {
                     logger.error("Failed to send email to {}", ordersDetails.getEmailId(), e);
                 }
             }
         }
 
-        OrderResponse buildResponse = buildResponse(order, processedDetails);
-        if (hasFailure) {
+        OrderResponse buildResponse = helper.buildResponse(order, processedDetails);
+        if ( hasFailure ) {
             buildResponse.setOrderMessage("Order processing failed: " + String.join("; ", failureMessages));
         } else {
             buildResponse.setOrderMessage("Order processed successfully.");
@@ -135,65 +139,60 @@ public class OrderService implements OrderServiceImpl {
     }
 
     private void restoreProductDetails(List<OrderDetails> reservedProducts) {
-            for (OrderDetails reserved : reservedProducts) {
-                try {
-                    ResponseEntity<String> restoreResponse = restTemplate.exchange(
-                            INVENTORY_URL + "/restoreProductCount/" + reserved.getProductId()
-                                    + "?quantity=" + reserved.getQuantity(),
-                            HttpMethod.PUT,
-                            null,
-                            String.class
-                    );
-                    logger.info("Inventory restored for product ID {}: {}", reserved.getProductId(),
-                            restoreResponse.getStatusCode());
-                } catch (Exception e) {
-                    logger.error("Failed to restore inventory for product ID {}", reserved.getProductId(), e);
-                }
+        for (OrderDetails reserved : reservedProducts) {
+            try {
+                ResponseEntity<String> restoreResponse = restTemplate.exchange(
+                        INVENTORY_URL + "/restoreProductCount/" + reserved.getProductId()
+                                + "?quantity=" + reserved.getQuantity(),
+                        HttpMethod.PUT,
+                        null,
+                        String.class
+                );
+                logger.info("Inventory restored for product ID {}: {}", reserved.getProductId(),
+                        restoreResponse.getStatusCode());
+            } catch (Exception e) {
+                logger.error("Failed to restore inventory for product ID {}", reserved.getProductId(), e);
             }
-    }
-
-    private static OrderResponse buildResponse(Orders order, List<OrderDetails> processedDetails) {
-        OrderResponse response = new OrderResponse();
-        response.setCustomerId(order.getCustomerId());
-        response.setCustomerName(order.getCustomerName());
-        response.setAddress(order.getAddress());
-        response.setEmailId(order.getEmailId());
-        response.setPhoneNumber(order.getPhoneNumber());
-        response.setOrderDetailsResponses(new ArrayList<>());
-
-        for (OrderDetails detail : processedDetails) {
-            OrderDetailsResponse odp = new OrderDetailsResponse();
-            odp.setOrderId(detail.getOrderId());
-            odp.setOrderName(detail.getOrderName());
-            odp.setPrice(detail.getPrice());
-            odp.setQuantity(detail.getQuantity());
-            response.getOrderDetailsResponses().add(odp);
-
         }
-        return response;
     }
 
     @Override
-    public List<Orders> retrieveListOfOrders() {
-        return Optional.ofNullable(orderRepository.findAll())
+    public List<OrderResponse> retrieveListOfOrders() {
+        return Optional.ofNullable(orderRepository.findAll()).map(
+                        orders ->
+                            orders.stream()
+                                    .map(
+                                    order -> helper.buildResponse(order, order.getOrderDetails()))
+                                    .collect(Collectors.toList()))
                 .orElse(List.of());
+
     }
 
     @Override
-    public Optional<Orders> getOrdersById(int orderId) {
-        List<Orders> allOrders = orderRepository.findAll();
+    public Optional<OrderResponse> getOrdersById(int orderId) {
+        return orderRepository.findByOrderDetailsOrderId(orderId)
+                .map(order -> {
+                    List<OrderDetails> filteredDetails = order.getOrderDetails().stream()
+                            .filter(detail -> detail.getOrderId() == orderId)
+                            .collect(Collectors.toList());
 
+                    return helper.buildResponse(order, filteredDetails);
+                });
+    }
+
+    @Override
+    public Optional<Orders> deleteOrderById(int orderId) {
+        Optional<Orders> ordersOpt = validateOrder(orderId);
+        ordersOpt.ifPresent(orderRepository::delete);
+        return ordersOpt;
+    }
+
+    private Optional<Orders> validateOrder(int orderId) {
+        List<Orders> allOrders = orderRepository.findAll();
         return allOrders.stream()
                 .filter(order -> order.getOrderDetails().stream()
                         .anyMatch(detail -> detail.getOrderId() == orderId))
                 .findFirst();
-        }
-
-    @Override
-    public Optional<Orders> deleteOrderById(int orderId) {
-        Optional<Orders> ordersOpt = getOrdersById(orderId);
-        ordersOpt.ifPresent(orderRepository::delete);
-        return ordersOpt;
     }
 
     @Override
@@ -207,11 +206,11 @@ public class OrderService implements OrderServiceImpl {
 
         Optional<Orders> validateCustomer = orderRepository.findByCustomerId(orders.getCustomerId());
 
-        if(validateCustomer.isPresent()){
+        if ( validateCustomer.isPresent() ) {
             Orders existingOrders = validateCustomer.get();
             List<OrderDetails> remainingOrders = new ArrayList<>();
             for (OrderDetails orderDetail : existingOrders.getOrderDetails()) {
-                if (!orderIds.contains(orderDetail.getOrderId())) {
+                if ( !orderIds.contains(orderDetail.getOrderId()) ) {
                     remainingOrders.add(orderDetail);
                 } else {
                     deletedOrderIds.add(orderDetail.getOrderId());
@@ -219,26 +218,16 @@ public class OrderService implements OrderServiceImpl {
                 }
             }
 
-            if (deletedOrderIds.size() > 0) {
+            if ( deletedOrderIds.size() > 0 ) {
                 existingOrders.setOrderDetails(remainingOrders);
-                if (remainingOrders.isEmpty()) {
+                if ( remainingOrders.isEmpty() ) {
                     orderRepository.delete(existingOrders);
                 } else {
                     orderRepository.save(existingOrders);
                 }
                 restoreProductDetails(deletedOrdersList);
             }
-
-//            Orders deletedOrdersResult = new Orders();
-//            deletedOrdersResult.setId(existingOrders.getId());
-//            deletedOrdersResult.setCustomerId(existingOrders.getCustomerId());
-//            deletedOrdersResult.setCustomerName(existingOrders.getCustomerName());
-//            deletedOrdersResult.setAddress(existingOrders.getAddress());
-//            deletedOrdersResult.setEmailId(existingOrders.getEmailId());
-//            deletedOrdersResult.setPhoneNumber(existingOrders.getPhoneNumber());
-//            deletedOrdersResult.setOrderDetails(deletedOrdersList);
-
-            return Optional.of(buildResponse(existingOrders, deletedOrdersList));
+            return Optional.of(helper.buildResponse(existingOrders, deletedOrdersList));
         }
         return Optional.empty();
     }
