@@ -188,12 +188,15 @@ public class OrderService implements OrderServiceImpl {
     }
 
     private Optional<Orders> validateOrder(int orderId) {
-        List<Orders> allOrders = orderRepository.findAll();
-        return allOrders.stream()
-                .filter(order -> order.getOrderDetails().stream()
-                        .anyMatch(detail -> detail.getOrderId() == orderId))
-                .findFirst();
+        return orderRepository.findByOrderDetailsOrderId(orderId)
+                .map(order -> {
+                    List<OrderDetails> filteredDetails = order.getOrderDetails().stream()
+                            .filter(detail -> detail.getOrderId() == orderId)
+                            .collect(Collectors.toList());
+                    return order;
+                });
     }
+
 
     @Override
     public Optional<OrderResponse> bulkOrdersDelete(Orders orders) {
