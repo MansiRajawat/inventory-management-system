@@ -17,3 +17,7 @@ sendgrid:
     key:
   from:
     email: dhruvajyotipramanik123@gmail.com
+
+jwt:
+  secret:
+  expiration: 3600000

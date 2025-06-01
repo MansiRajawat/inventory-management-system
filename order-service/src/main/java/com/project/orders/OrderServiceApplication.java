@@ -8,7 +8,8 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
 		exclude = {
 				org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration.class,
 				org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration.class
-		}
+		},
+scanBasePackages = "com.project.orders"
 )
 @EnableMongoRepositories(basePackages = "com.project.orders.dao")
 public class OrderServiceApplication {
