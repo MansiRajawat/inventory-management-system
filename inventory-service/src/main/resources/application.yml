@@ -26,3 +26,7 @@ spring:
 springdoc:
   swagger-ui:
     path: /swagger-ui.html
+
+jwt:
+  secret: 8frReDs1KJC8xWBkSExXUfjlBPldUzRX6J5X7V/EivZn7GLltqp+aUWwyjaR2tnhA8ussKwFrVVhsywErw6dyg==
+  expiration: 3600000
