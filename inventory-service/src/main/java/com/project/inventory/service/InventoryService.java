@@ -1,24 +1,33 @@
 package com.project.inventory.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.project.inventory.Utility.DocUtility;
 import com.project.inventory.dao.ProductRepository;
 import com.project.inventory.exception.ProductIdAlreadyMappedException;
 import com.project.inventory.exception.ResourceNotFoundException;
 import com.project.inventory.model.Details;
+import com.project.inventory.model.FileResponse;
 import com.project.inventory.model.ProductDetails;
 import com.project.inventory.model.ProductResponse;
 import com.project.inventory.serviceImpl.InventoryServiceImpl;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 
+import java.io.*;
 import java.util.*;
 import java.util.stream.Collectors;
+
 
 @Component
 public class InventoryService implements InventoryServiceImpl {
 
     @Autowired
     private ProductRepository productDao;
+
+    @Autowired
+    private DocUtility utility;
 
 
     @Override
@@ -57,7 +66,7 @@ public class InventoryService implements InventoryServiceImpl {
     }
 
     @Override
-    public Details retriveListOfProducts() {
+    public FileResponse retriveListOfProducts(String type) {
 
         /* commenting this code for functional coding approach */
         //   List<ProductDetails> productDetails =  productDao.findAll();
@@ -70,11 +79,64 @@ public class InventoryService implements InventoryServiceImpl {
 //        }
  //       return new Details();
 
-        return  Optional.of(productDao.findAll()).filter(list -> !list.isEmpty())
-                .map(list -> {
-                    var details = new Details();
-                details.setProductDetails(list);
-                return details; }).orElseGet(Details::new);
+        List<ProductDetails> products = productDao.findAll();
+
+        if("pdf".equalsIgnoreCase(type)){
+            return FileResponse.builder()
+                    .data(utility.generatePdf(products))
+                    .fileName("products.pdf")
+                    .mediaType(MediaType.APPLICATION_PDF)
+                    .build();
+        } else if("excel".equalsIgnoreCase(type)){
+            byte[] getBytes = utility.generateExcel(products);
+            return getInventoryResponseAsExcel(getBytes);
+        }
+        try {
+            Details details = new Details();
+            details.setProductDetails(products);
+            return FileResponse.builder()
+                    .data(new ObjectMapper().writeValueAsBytes(details))
+                    .mediaType(MediaType.APPLICATION_JSON)
+                    .build();
+        } catch (Exception e) {
+            throw new RuntimeException("JSON serialization failed", e);
+        }
+    }
+
+    private static FileResponse getInventoryResponseAsExcel(byte[] excelBytes) {
+        storeExcelToDirectory(excelBytes);
+        try {
+            return FileResponse.builder()
+                    .data("excel generated".getBytes("UTF-8"))
+                    .mediaType(MediaType.TEXT_PLAIN)
+                    .build();
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException("UTF-8 not supported", e);
+        }
+    }
+
+    private static void storeExcelToDirectory(byte[] excelBytes) {
+        File targetFile = new File("{directory}/products.xlsx");
+        File parentDir = targetFile.getParentFile();
+
+        if (!parentDir.exists()) {
+            parentDir.mkdirs();
+        }
+
+        FileOutputStream fos = null;
+        try {
+            fos = new FileOutputStream(targetFile);
+            fos.write(excelBytes);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to write Excel to disk", e);
+        } finally {
+            if (fos != null) {
+                try {
+                    fos.close();
+                } catch (IOException e) {
+                }
+            }
+        }
     }
 
     @Override
@@ -118,6 +180,5 @@ public class InventoryService implements InventoryServiceImpl {
 
         return Collections.emptyList();
     }
-
 }
 

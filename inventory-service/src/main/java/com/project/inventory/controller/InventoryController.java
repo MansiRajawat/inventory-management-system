@@ -1,10 +1,6 @@
 package com.project.inventory.controller;
 
-
-import com.project.inventory.model.Details;
-import com.project.inventory.model.InventoryResponse;
-import com.project.inventory.model.ProductDetails;
-import com.project.inventory.model.ProductResponse;
+import com.project.inventory.model.*;
 import com.project.inventory.service.InventoryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -13,6 +9,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -50,9 +47,18 @@ public class InventoryController {
     }
 
     @GetMapping("/getAllProducts")
-    public ResponseEntity<Details> getListOfProducts() {
-        Details getProductDetails = inventoryService.retriveListOfProducts();
-        return new ResponseEntity<>(getProductDetails, HttpStatus.OK);
+    public ResponseEntity<byte[]> getListOfProducts(@RequestParam(required = false) String type) {
+        FileResponse response = inventoryService.retriveListOfProducts(type);
+
+        HttpHeaders headers = new HttpHeaders();
+        if (response.getFileName() != null) {
+            headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + response.getFileName());
+        }
+
+        return ResponseEntity.ok()
+                .headers(headers)
+                .contentType(response.getMediaType())
+                .body(response.getData());
     }
 
     @GetMapping("/getProductById/{id}")
