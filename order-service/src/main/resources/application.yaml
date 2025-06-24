@@ -14,10 +14,10 @@ logging:
         stat: debug
 sendgrid:
   api:
-    key: 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
+    key:
   from:
     email: dhruvajyotipramanik123@gmail.com
 
 jwt:
-  secret: 8frReDs1KJC8xWBkSExXUfjlBPldUzRX6J5X7V/EivZn7GLltqp+aUWwyjaR2tnhA8ussKwFrVVhsywErw6dyg==
+  secret:
   expiration: 3600000

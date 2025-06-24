@@ -110,8 +110,8 @@ public class InventoryService implements InventoryServiceImpl {
                     .data("excel generated".getBytes("UTF-8"))
                     .mediaType(MediaType.TEXT_PLAIN)
                     .build();
-        } catch (UnsupportedEncodingException ex) {
-            throw new RuntimeException("UTF-8 not supported", ex);
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException("UTF-8 not supported", e);
         }
     }
 
