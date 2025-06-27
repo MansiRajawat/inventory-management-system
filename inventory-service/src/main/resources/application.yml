@@ -28,5 +28,5 @@ springdoc:
     path: /swagger-ui.html
 
 jwt:
-  secret: 8frReDs1KJC8xWBkSExXUfjlBPldUzRX6J5X7V/EivZn7GLltqp+aUWwyjaR2tnhA8ussKwFrVVhsywErw6dyg==
+  secret:
   expiration: 3600000
